@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,6 +17,40 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::get('/clear-cache', function() {
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('config:cache');
+    Artisan::call('route:clear');
+    Artisan::call('optimize:clear');
+    Artisan::call('optimize');
+    return 'Caches cleared';
+});
+
+Route::get('/migrate-db-fresh', function() {
+    // Run your app migrations first
+    Artisan::call('migrate:fresh', [
+        '--force' => true,
+    ]);
+
+    // Then run Sanctum migrations
+    Artisan::call('migrate', [
+        '--path' => 'vendor/laravel/sanctum/database/migrations',
+        '--force' => true,
+    ]);
+
+    return Artisan::output();
+});
+
+Route::get('/migrate-db', function() {
+    Artisan::call('migrate', [
+        '--force' => true,
+    ]);
+
+    return 'Database migrated';
+});
+
 
 Route::post('/auth/register', [LoginController::class, 'register'])->name('register');
 Route::post('/auth/login', [LoginController::class, 'login'])->name('login');
