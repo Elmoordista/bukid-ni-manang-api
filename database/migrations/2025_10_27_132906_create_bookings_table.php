@@ -23,6 +23,7 @@ class CreateBookingsTable extends Migration
             $table->integer('total_price');
             $table->string('contact_number')->nullable();
             $table->string('guest_request')->nullable();
+            $table->string('reason')->nullable()->comment('cancellation reason');
             $table->string('status')->nullable();
             $table->timestamps();
         });

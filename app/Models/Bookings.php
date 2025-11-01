@@ -18,6 +18,7 @@ class Bookings extends Model
         'contact_number',
         'guest_request',
         'total_price',
+        'reason',
         'status',
     ];
 

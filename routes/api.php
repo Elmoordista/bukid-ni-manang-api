@@ -30,10 +30,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/front-end/cancel-booking', [FrontEndController::class, 'cancelBooking'])->name('front-end.cancel-booking');
     Route::post('/front-end/book-room', [FrontEndController::class, 'bookRoom'])->name('front-end.book-room');
 
+
+    Route::post('/payment/export-payments', [PaymentController::class, 'exportPayments'])->name('payment.export-payments');
+
     Route::resources([
         'user' => UserController::class,
         'rooms' => RoomsController::class,
         'front-end' => FrontEndController::class,
+        'booking' => BookingController::class,
+        'payment' => PaymentController::class,
     ]);
     
 });
