@@ -25,8 +25,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user/get-users', [UserController::class, 'getUsers'])->name('users.get-all');
 
+    Route::get('/front-end/get-rooms', [FrontEndController::class, 'getRooms'])->name('front-end.get-rooms');
+    Route::get('/front-end/get-my-bookings', [FrontEndController::class, 'getMyBookings'])->name('front-end.get-my-bookings');
+    Route::post('/front-end/cancel-booking', [FrontEndController::class, 'cancelBooking'])->name('front-end.cancel-booking');
+    Route::post('/front-end/book-room', [FrontEndController::class, 'bookRoom'])->name('front-end.book-room');
+
     Route::resources([
         'user' => UserController::class,
+        'rooms' => RoomsController::class,
+        'front-end' => FrontEndController::class,
     ]);
     
 });

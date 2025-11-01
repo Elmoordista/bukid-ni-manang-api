@@ -18,6 +18,7 @@ class CreatePaymentsTable extends Migration
             $table->integer('booking_id');
             $table->integer('amount');
             $table->string('payment_method');
+            $table->string('reference_number')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();
         });

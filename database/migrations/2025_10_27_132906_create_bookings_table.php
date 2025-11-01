@@ -21,6 +21,8 @@ class CreateBookingsTable extends Migration
             $table->date('end_date');
             $table->integer('guest_count');
             $table->integer('total_price');
+            $table->string('contact_number')->nullable();
+            $table->string('guest_request')->nullable();
             $table->string('status')->nullable();
             $table->timestamps();
         });

@@ -13,6 +13,7 @@ class Payment extends Model
         'booking_id',
         'amount',
         'payment_method',
+        'reference_number',
         'status',
     ];
 }
