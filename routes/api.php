@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'front-end' => FrontEndController::class,
         'booking' => BookingController::class,
         'payment' => PaymentController::class,
+        'dashboard' => DashboardController::class,
     ]);
     
 });

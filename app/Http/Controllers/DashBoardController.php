@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bookings;
+use App\Models\Rooms;
 use Illuminate\Http\Request;
 
 class DashBoardController extends Controller
@@ -13,7 +15,29 @@ class DashBoardController extends Controller
      */
     public function index()
     {
-        //
+        $todays_booking_confirmed = Bookings::whereDate('created_at', now()->toDateString())
+        ->where('status', 'confirmed')
+        ->get();
+        $todays_booking_pending = Bookings::whereDate('created_at', now()->toDateString())->where('status', 'pending')->get();
+        $rooms_available = Rooms::where('status', 'available')
+        ->whereHas('bookings', function ($query) {
+            $query->where('status', 'confirmed');
+        }, '=', 0)
+        ->get();
+        $bookings = Bookings::query()->take(5)
+        ->with('user')
+        ->orderBy('created_at', 'desc')
+        ->get();
+        $all_rooms = Rooms::count();
+
+        return response()->json([
+            'todays_booking_confirmed' => $todays_booking_confirmed,
+            'todays_booking_pending' => $todays_booking_pending,
+            'rooms_available' => $rooms_available,
+            'all_rooms' => $all_rooms,
+            'bookings' => $bookings,
+        ], 200);
+
     }
 
     /**
