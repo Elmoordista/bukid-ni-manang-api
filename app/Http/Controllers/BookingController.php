@@ -9,11 +9,14 @@ class BookingController extends Controller
 {
 
     protected $model;
+    protected $mailController;
     public function __construct(
-        Bookings $model
+        Bookings $model,
+        MailController $mailController
     )
     {
         $this->model = $model;
+        $this->mailController = $mailController;
     }
     /**
      * Display a listing of the resource.
@@ -93,8 +96,20 @@ class BookingController extends Controller
                 'message' => 'Booking not found',
             ], 404);
         }
+        
 
-        $booking->update($data);
+        $status = $booking->update($data);
+        if($status && isset($data['status']) && $data['status'] == 'confirmed'){
+            //send booking confirmation email
+            $booking = $this->model->with(['user', 'payment'])->find($id);
+            $this->mailController->bookingConfirmation($booking);
+        }
+        else if ($status && isset($data['status']) && $data['status'] == 'rejected'){
+            //send booking rejected email
+            $booking = $this->model->with(['user', 'payment'])->find($id);
+            $this->mailController->bookingRejected($booking);
+        }
+
         return response()->json([
             'message' => 'Booking updated successfully',
             'data' => $booking,

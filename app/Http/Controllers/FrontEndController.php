@@ -13,16 +13,19 @@ class FrontEndController extends Controller
     protected $roomModel;
     protected $bookingModel;
     protected $paymentModel;
+    protected $mailController;
 
     public function __construct(
         Rooms $roomModel,
         Bookings $bookingModel,
-        Payment $paymentModel
+        Payment $paymentModel,
+        MailController $mailController
     )
     {
         $this->roomModel = $roomModel;
         $this->bookingModel = $bookingModel;
         $this->paymentModel = $paymentModel;
+        $this->mailController = $mailController;
     }
 
     public function getRooms()
@@ -81,6 +84,10 @@ class FrontEndController extends Controller
                 'reference_number' => $request->paymentMethod == 'gcash' ? $request->paymentReference : null,
                 'status' => 'pending',
             ]);
+
+            if($booking){
+                $this->mailController->newBooking($booking->load('user'));
+            }
         }
 
         return response()->json([
@@ -115,6 +122,8 @@ class FrontEndController extends Controller
 
         $booking->status = 'cancelled';
         $booking->save();
+
+        $this->mailController->bookingRejected($booking->load('user'));
 
         return response()->json([
             'message' => 'Booking cancelled successfully.',

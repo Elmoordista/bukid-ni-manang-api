@@ -8,11 +8,14 @@ use Illuminate\Http\Request;
 class PaymentController extends Controller
 {
     protected $model;
+    protected $mailController;
     public function __construct(
-        Payment $model
+        Payment $model,
+        MailController $mailController
     )
     {
         $this->model = $model;
+        $this->mailController = $mailController;
     }
     /**
      * Display a listing of the resource.
@@ -98,7 +101,18 @@ class PaymentController extends Controller
                 'message' => 'Payment not found',
             ], 404);
         }
-        $payments->update($request->all());
+        $payments = $payments->update($request->all());
+        if(!$payments){
+            return response()->json([
+                'message' => 'Failed to update payment',
+            ], 500);
+        }else{
+            if($request->status == 'completed'){
+                $payments = $this->model::find($id);
+                $payments->load('booking.user');
+                $this->mailController->paymentReceived($payments);
+            }
+        }
         return response()->json([
             'message' => 'Payment updated successfully',
             'data' => $payments,

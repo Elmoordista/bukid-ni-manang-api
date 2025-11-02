@@ -204,4 +204,22 @@ class RoomsController extends Controller
             'message' => 'Room deleted successfully',
         ], 200);
     }
+
+     public function getRooms(Request $request)
+    {
+        $page = isset($request->page) ? $request->page : 1;
+        $page_size = isset($request->pageSize) ? $request->pageSize : 1;
+        $search = isset($request->search) ? $request->search : '';
+        $rooms = $this->model::query();
+
+        if ($search) {
+            $rooms->where('name', 'like', "%{$search}%");
+        }
+
+        $rooms->with('images');
+
+        return response()->json([
+            'data' => $rooms->paginate($page_size, ['*'], 'page', $page),
+        ], 200);
+    }
 }

@@ -55,6 +55,8 @@ Route::get('/migrate-db', function() {
 Route::post('/auth/register', [LoginController::class, 'register'])->name('register');
 Route::post('/auth/login', [LoginController::class, 'login'])->name('login');
 
+Route::get('/rooms/get-rooms', [RoomsController::class, 'getRooms'])->name('rooms.get-all');
+
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -68,6 +70,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/payment/export-payments', [PaymentController::class, 'exportPayments'])->name('payment.export-payments');
 
+    Route::post('/settings/test-email', [SettingsController::class, 'testEmail'])->name('settings.test-email');
+
     Route::resources([
         'user' => UserController::class,
         'rooms' => RoomsController::class,
@@ -75,6 +79,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'booking' => BookingController::class,
         'payment' => PaymentController::class,
         'dashboard' => DashboardController::class,
+        'settings' => SettingsController::class,
     ]);
     
 });
