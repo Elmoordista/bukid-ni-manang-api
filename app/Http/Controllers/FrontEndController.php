@@ -129,5 +129,29 @@ class FrontEndController extends Controller
             'message' => 'Booking cancelled successfully.',
         ], 200);
     }
+
+     public function bookAmenities(Request $request)
+    {
+        return $request;
+        $id = $request->booking_id;
+        $booking = $this->bookingModel::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$booking) {
+            return response()->json([
+                'message' => 'Booking not found.',
+            ], 404);
+        }
+
+        $booking->status = 'cancelled';
+        $booking->save();
+
+        $this->mailController->bookingRejected($booking->load('user'));
+
+        return response()->json([
+            'message' => 'Booking cancelled successfully.',
+        ], 200);
+    }
 }
 

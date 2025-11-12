@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -61,6 +62,11 @@ class LoginController extends Controller
         }
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(['message' => 'User logged in successfully', 'success' => true, 'access_token' => $token, 'token_type' => 'Bearer', 'user' => $user], 200);
+    }
+
+    public function signOut(Request $request){
+        auth()->user()->tokens()->delete();
+        return response()->json(['message' => 'User signed out successfully', 'success' => true], 200);
     }
 
      public function test(Request $request)
