@@ -88,7 +88,11 @@
         <tbody>
             @foreach ($transaction as $item)
             <tr>
-                <td>{{ $item['user']['first_name'] }} {{ $item['user']['last_name'] }}</td>
+                @if($item['user'])
+                    <td>{{ $item['user']['first_name'] }} {{ $item['user']['last_name'] }}</td>
+                @else
+                    <td>--</td>
+                @endif
                 <td >{{ number_format($item['total_price'], 2) }}</td>
                 <td>{{ \Carbon\Carbon::parse($item['start_date'])->format('m/d/Y') }}</td>
                 <td>{{ \Carbon\Carbon::parse($item['end_date'])->format('m/d/Y') }}</td>
