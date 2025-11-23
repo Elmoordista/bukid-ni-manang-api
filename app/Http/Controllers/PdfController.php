@@ -19,4 +19,15 @@ class PdfController extends Controller
 
         return $pdf->download('payments.pdf');
     }
+    public function exportBookingsReport($bookings = null)
+    {
+        $transaction = $bookings ?? [];
+
+        $pdf = Pdf::loadView('pdf.reports', [
+            'headerNote' => '',
+            'transaction' => $transaction,
+        ]);
+
+        return $pdf->download('payments.pdf');
+    }
 }

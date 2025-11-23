@@ -33,48 +33,52 @@ class BookingController extends Controller
         ], 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function getReport(Request $request)
     {
-        //
+        $search = $request->input('search');
+        $status = $request->input('status');
+        $bookings = $this->model::query();
+
+        if($search){
+            $bookings->whereHas('user', function($query) use ($search) {
+                $query->where('first_name', 'like', '%' . $search . '%')
+                      ->orWhere('last_name', 'like', '%' . $search . '%')
+                      ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+        if($status && $status != 'all'){
+            $bookings->where('status', $status);
+        }
+
+        $bookings->with(['user', 'payment']);
+        $bookings = $bookings->paginate(10);
+        return response()->json([
+            'data' => $bookings,
+        ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function exportReports(Request $request, PdfController $pdfController)
     {
-        //
+        $search = $request->input('search');
+        $status = $request->input('status');
+        $bookings = $this->model::query();
+
+        if($search){
+            $bookings->whereHas('user', function($query) use ($search) {
+                $query->where('first_name', 'like', '%' . $search . '%')
+                      ->orWhere('last_name', 'like', '%' . $search . '%')
+                      ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+        if($status && $status != 'all'){
+            $bookings->where('status', $status);
+        }
+
+        $bookings->with(['user']);
+        $bookings = $bookings->get();
+        return $pdfController->exportBookingsReport($bookings);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.

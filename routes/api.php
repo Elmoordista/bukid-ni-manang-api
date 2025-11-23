@@ -68,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/front-end/get-rooms', [FrontEndController::class, 'getRooms'])->name('front-end.get-rooms');
     Route::get('/front-end/get-my-bookings', [FrontEndController::class, 'getMyBookings'])->name('front-end.get-my-bookings');
     Route::post('/front-end/cancel-booking', [FrontEndController::class, 'cancelBooking'])->name('front-end.cancel-booking');
+    Route::post('/front-end/check-out-booking', [FrontEndController::class, 'checkOutBooking'])->name('front-end.check-out-booking');
     Route::post('/front-end/book-room', [FrontEndController::class, 'bookRoom'])->name('front-end.book-room');
     Route::post('/front-end/book-amenities', [FrontEndController::class, 'bookAmenities'])->name('booking.book-amenities');
 
@@ -76,6 +77,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/payment/export-payments', [PaymentController::class, 'exportPayments'])->name('payment.export-payments');
 
     Route::post('/settings/test-email', [SettingsController::class, 'testEmail'])->name('settings.test-email');
+
+
+    Route::get('/booking/get-report', [BookingController::class, 'getReport'])->name('booking.get-report');
+    Route::post('/booking/export-reports', [BookingController::class, 'exportReports'])->name('booking.export-reports');
 
 
     Route::resources([

@@ -28,9 +28,33 @@ class FrontEndController extends Controller
         $this->mailController = $mailController;
     }
 
-    public function getRooms()
+    public function getRooms(Request $request)
     {
-        $rooms = $this->roomModel::with('images')->get();
+        $minPrice = $request->input('min_price');
+        $maxPrice = $request->input('max_price');
+        $maxGuests = $request->input('guests');
+        $maxBeds = $request->input('beds');
+
+
+        $rooms = $this->roomModel::query();
+
+        if ($minPrice) {
+            $rooms->where('price_per_night', '>=', $minPrice);
+        }
+
+        if ($maxPrice) {
+            $rooms->where('price_per_night', '<=', $maxPrice);
+        }
+
+        if ($maxGuests) {
+            $rooms->where('max_occupancy', '>=', $maxGuests);
+        }
+
+        if ($maxBeds) {
+            $rooms->where('number_of_beds', '>=', $maxBeds);
+        }
+
+        $rooms = $rooms->get();
         return response()->json([
             'data' => $rooms,
         ], 200);
@@ -127,6 +151,28 @@ class FrontEndController extends Controller
 
         return response()->json([
             'message' => 'Booking cancelled successfully.',
+        ], 200);
+    } 
+    public function checkOutBooking(Request $request)
+    {
+        $id = $request->booking_id;
+        $booking = $this->bookingModel::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$booking) {
+            return response()->json([
+                'message' => 'Booking not found.',
+            ], 404);
+        }
+
+        $booking->status = 'done';
+        $booking->save();
+
+        $this->mailController->bookingCheckedOut($booking->load('user'));
+
+        return response()->json([
+            'message' => 'Booking checked out successfully.',
         ], 200);
     }
 

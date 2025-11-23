@@ -36,6 +36,12 @@ class MailController extends Controller
             '{guest_name}' =>$booking['user']['full_name'],
         ]);
     }
+    
+    public function bookingCheckedOut($booking){
+        return $this->getTemplate($booking, 'bookingCheckedOut', [
+            '{guest_name}' =>$booking['user']['full_name'],
+        ]);
+    }
 
         
     public function paymentReceived($booking){

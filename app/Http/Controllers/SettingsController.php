@@ -28,8 +28,9 @@ class SettingsController extends Controller
         $settings = $this->settings->where('type', $type)->first();
         if (!$settings) {
             return response()->json([
-                'message' => 'Settings not found'
-            ], 404);
+                'message' => 'Settings not found',
+                'data' => null
+            ], 200);
         }
         return response()->json([
             'message' => 'Settings retrieved successfully',
