@@ -89,7 +89,11 @@
             @foreach ($transaction as $item)
             <tr>
                 @if($item['user'])
-                    <td>{{ $item['user']['first_name'] }} {{ $item['user']['last_name'] }}</td>
+                    @if($item['user']['name'])
+                        <td>{{ $item['user']['name'] }}</td>
+                    @else
+                        <td>--</td>
+                    @endif
                 @else
                     <td>--</td>
                 @endif
