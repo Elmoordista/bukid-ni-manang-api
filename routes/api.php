@@ -56,6 +56,7 @@ Route::post('/auth/register', [LoginController::class, 'register'])->name('regis
 Route::post('/auth/login', [LoginController::class, 'login'])->name('login');
 
 Route::get('/rooms/get-rooms', [RoomsController::class, 'getRooms'])->name('rooms.get-all');
+Route::get('/front-end/get-rooms', [FrontEndController::class, 'getRooms'])->name('front-end.get-rooms');
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -65,7 +66,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/get-users', [UserController::class, 'getUsers'])->name('users.get-all');
     Route::post('/auth/sign-out', [LoginController::class, 'signOut'])->name('sign-out');
 
-    Route::get('/front-end/get-rooms', [FrontEndController::class, 'getRooms'])->name('front-end.get-rooms');
     Route::get('/front-end/get-my-bookings', [FrontEndController::class, 'getMyBookings'])->name('front-end.get-my-bookings');
     Route::post('/front-end/cancel-booking', [FrontEndController::class, 'cancelBooking'])->name('front-end.cancel-booking');
     Route::post('/front-end/check-out-booking', [FrontEndController::class, 'checkOutBooking'])->name('front-end.check-out-booking');
