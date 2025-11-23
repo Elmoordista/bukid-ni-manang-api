@@ -54,6 +54,8 @@ class FrontEndController extends Controller
             $rooms->where('number_of_beds', '>=', $maxBeds);
         }
 
+        $rooms->with('images');
+
         $rooms = $rooms->get();
         return response()->json([
             'data' => $rooms,
