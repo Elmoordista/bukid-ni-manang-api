@@ -215,6 +215,10 @@ class RoomsController extends Controller
         if ($search) {
             $rooms->where('name', 'like', "%{$search}%");
         }
+        
+        $rooms->whereDoesntHave('bookings', function ($query) use ($request) {
+          $query->whereIn('status', ['confirmed','pending']);
+        });
 
         $rooms->with('images');
 
