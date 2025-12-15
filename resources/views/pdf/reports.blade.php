@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Transaction Report</title>
     <style>
         /* Set page margins */
@@ -9,7 +10,8 @@
             margin: 30px 40px;
         }
         body {
-            font-family: Arial, sans-serif;
+            /* Use DejaVu Sans for proper Unicode (peso) support in DOMPDF */
+            font-family: 'DejaVu Sans', Arial, sans-serif;
             font-size: 12px;
             color: #333;
             margin: 0;
@@ -97,7 +99,7 @@
                 @else
                     <td>--</td>
                 @endif
-                <td >{{ number_format($item['total_price'], 2) }}</td>
+                <td >₱ {{ number_format($item['total_price'], 2) }}</td>
                 <td>{{ \Carbon\Carbon::parse($item['start_date'])->format('m/d/Y') }}</td>
                 <td>{{ \Carbon\Carbon::parse($item['end_date'])->format('m/d/Y') }}</td>
                 <td class="status">
@@ -109,3 +111,6 @@
     </table>
 </body>
 </html>
+
+
+

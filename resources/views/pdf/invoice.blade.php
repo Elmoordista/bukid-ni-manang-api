@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Transaction Report</title>
     <style>
         /* Set page margins */
@@ -9,7 +10,8 @@
             margin: 30px 40px;
         }
         body {
-            font-family: Arial, sans-serif;
+            /* Use DejaVu Sans for proper Unicode (peso) support in DOMPDF */
+            font-family: 'DejaVu Sans', Arial, sans-serif;
             font-size: 12px;
             color: #333;
             margin: 0;
@@ -93,7 +95,7 @@
                 <td>{{ $item['reference_number'] }}</td>
                 <td>{{ $item['booking_id'] }}</td>
                 <td>{{ $item['booking']['user']['name'] ?? '' }}</td>
-                <td class="amount">{{ number_format($item['amount'], 2) }}</td>
+                <td class="amount">₱ {{ number_format($item['amount'], 2) }}</td>
                 <td>{{ $item['payment_method'] }}</td>
                 <td>{{ \Carbon\Carbon::parse($item['created_at'])->format('m/d/Y, h:i:s A') }}</td>
                 <td class="status">
@@ -105,3 +107,6 @@
     </table>
 </body>
 </html>
+
+
+
