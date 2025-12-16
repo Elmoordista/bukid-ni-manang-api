@@ -7,6 +7,8 @@ use App\Models\Payment;
 use App\Models\Rooms;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class FrontEndController extends Controller
 {
@@ -125,8 +127,39 @@ class FrontEndController extends Controller
     public function getMyBookings()
     {
         $bookings = $this->bookingModel::where('user_id', Auth::id())
-            ->with(['payment','user'])
-            ->get();
+            ->with(['payment','user', 'room'])
+            ->get()
+            ->map(function($booking) {
+                $today = date('Y-m-d');
+                $startDate = date('Y-m-d', strtotime($booking->start_date));
+                $endDate = date('Y-m-d', strtotime($booking->end_date));
+                
+                // Debug: Log the booking details
+                Log::info('Booking Debug', [
+                    'booking_id' => $booking->id,
+                    'status' => $booking->status,
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                    'today' => $today,
+                    'is_confirmed' => in_array($booking->status, ['active', 'confirmed', 'pending']),
+                    'today >= start' => $today >= $startDate,
+                    'today <= end' => $today <= $endDate
+                ]);
+                
+                // Determine if checkout button should show
+                // Status must be 'confirmed' (admin approved)
+                // Today must be between start and end dates (inclusive)
+                $showCheckoutButton = $booking->status === 'confirmed'
+                    && $today >= $startDate
+                    && $today <= $endDate;
+                
+                return array_merge($booking->toArray(), [
+                    'show_checkout_button' => $showCheckoutButton,
+                    'is_checked_in' => $today >= $startDate,
+                    'is_check_out_date' => $today === $endDate,
+                    'days_until_checkout' => abs((strtotime($endDate) - strtotime($today)) / 86400)
+                ]);
+            });
 
         return response()->json([
             'data' => $bookings,
@@ -160,6 +193,7 @@ class FrontEndController extends Controller
         $id = $request->booking_id;
         $booking = $this->bookingModel::where('id', $id)
             ->where('user_id', Auth::id())
+            ->with(['payment','user', 'room'])
             ->first();
 
         if (!$booking) {
@@ -167,38 +201,84 @@ class FrontEndController extends Controller
                 'message' => 'Booking not found.',
             ], 404);
         }
+
+        Log::info('Checkout: Starting checkout process', ['booking_id' => $booking->id, 'user_id' => Auth::id()]);
 
         $booking->status = 'done';
         $booking->save();
 
-        $this->mailController->bookingCheckedOut($booking->load('user'));
+        Log::info('Checkout: Booking status updated to done', ['booking_id' => $booking->id]);
+
+        $emailResult = $this->mailController->bookingCheckedOut($booking->load('user'));
+        
+        Log::info('Checkout: Email sent', ['booking_id' => $booking->id, 'email_result' => $emailResult]);
+
+        // Return the updated booking with done status immediately
+        $today = date('Y-m-d');
+        $startDate = date('Y-m-d', strtotime($booking->start_date));
+        $endDate = date('Y-m-d', strtotime($booking->end_date));
+        
+        $bookingData = array_merge($booking->toArray(), [
+            'show_checkout_button' => false, // No checkout button for done bookings
+            'is_checked_in' => $today >= $startDate,
+            'is_check_out_date' => $today === $endDate,
+            'days_until_checkout' => abs((strtotime($endDate) - strtotime($today)) / 86400)
+        ]);
 
         return response()->json([
             'message' => 'Booking checked out successfully.',
+            'data' => $bookingData,
         ], 200);
     }
 
-     public function bookAmenities(Request $request)
-    {
-        return $request;
-        $id = $request->booking_id;
-        $booking = $this->bookingModel::where('id', $id)
-            ->where('user_id', Auth::id())
-            ->first();
 
-        if (!$booking) {
+
+    public function getBookingCheckoutStatus(Request $request)
+    {
+        $userId = auth()->id();
+        
+        if (!$userId) {
             return response()->json([
-                'message' => 'Booking not found.',
-            ], 404);
+                'success' => false,
+                'message' => 'User not authenticated'
+            ], 401);
         }
 
-        $booking->status = 'cancelled';
-        $booking->save();
-
-        $this->mailController->bookingRejected($booking->load('user'));
-
+        $bookings = Bookings::with(['room', 'user'])
+            ->where('user_id', $userId)
+            ->get()
+            ->map(function($booking) {
+                $today = date('Y-m-d');
+                $startDate = date('Y-m-d', strtotime($booking->start_date));
+                $endDate = date('Y-m-d', strtotime($booking->end_date));
+                
+                // Show checkout button if:
+                // 1. Status is 'confirmed' (admin approved)
+                // 2. Today is on or after check-in date
+                // 3. Today is on or before check-out date
+                $showCheckoutButton = $booking->status === 'confirmed'
+                    && $today >= $startDate
+                    && $today <= $endDate;
+                
+                return [
+                    'id' => $booking->id,
+                    'booking_id' => $booking->booking_id,
+                    'room_id' => $booking->room_id,
+                    'room_name' => $booking->room->name ?? 'N/A',
+                    'start_date' => $booking->start_date,
+                    'end_date' => $booking->end_date,
+                    'status' => $booking->status,
+                    'show_checkout_button' => $showCheckoutButton,
+                    'days_until_checkout' => abs((strtotime($endDate) - strtotime($today)) / 86400),
+                    'is_checked_in' => $today >= $startDate,
+                    'is_check_out_date' => $today === $endDate,
+                    'total_price' => $booking->total_price
+                ];
+            });
+        
         return response()->json([
-            'message' => 'Booking cancelled successfully.',
+            'success' => true,
+            'data' => $bookings
         ], 200);
     }
 }

@@ -58,6 +58,9 @@ Route::post('/auth/login', [LoginController::class, 'login'])->name('login');
 Route::get('/rooms/get-rooms', [RoomsController::class, 'getRooms'])->name('rooms.get-all');
 Route::get('/front-end/get-rooms', [FrontEndController::class, 'getRooms'])->name('front-end.get-rooms');
 
+// Room Availability Check Routes (Public - no auth required)
+Route::post('/rooms/check-availability', [RoomAvailabilityController::class, 'checkAvailability'])->name('rooms.check-availability');
+Route::get('/rooms/{roomId}/blocked-dates', [RoomAvailabilityController::class, 'getRoomBlockedDates'])->name('rooms.blocked-dates');
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -67,10 +70,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/sign-out', [LoginController::class, 'signOut'])->name('sign-out');
 
     Route::get('/front-end/get-my-bookings', [FrontEndController::class, 'getMyBookings'])->name('front-end.get-my-bookings');
+    Route::get('/front-end/get-booking-checkout-status', [FrontEndController::class, 'getBookingCheckoutStatus'])->name('front-end.get-booking-checkout-status');
     Route::post('/front-end/cancel-booking', [FrontEndController::class, 'cancelBooking'])->name('front-end.cancel-booking');
     Route::post('/front-end/check-out-booking', [FrontEndController::class, 'checkOutBooking'])->name('front-end.check-out-booking');
     Route::post('/front-end/book-room', [FrontEndController::class, 'bookRoom'])->name('front-end.book-room');
-    Route::post('/front-end/book-amenities', [FrontEndController::class, 'bookAmenities'])->name('booking.book-amenities');
 
 
 
@@ -81,7 +84,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/booking/get-report', [BookingController::class, 'getReport'])->name('booking.get-report');
     Route::post('/booking/export-reports', [BookingController::class, 'exportReports'])->name('booking.export-reports');
-
 
     Route::resources([
         'user' => UserController::class,
